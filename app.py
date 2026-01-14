@@ -105,8 +105,9 @@ ACTIVITIES = [
     },
 ]
 
+
 # -----------------------------
-# Planning Grid
+# Planning Grid (Chunked by 4 Weeks)
 # -----------------------------
 
 st.markdown("### Weekly Interaction Planning Grid")
@@ -114,32 +115,42 @@ st.caption("Select which activities occur in each instructional week.")
 
 data = []
 
-header_cols = st.columns(classweeks + 1)
-header_cols[0].write("**Activity**")
-for w in range(classweeks):
-    header_cols[w + 1].write(f"**Week {w + 1}**")
+WEEKS_PER_ROW = 4
 
-for activity in ACTIVITIES:
-    row_cols = st.columns(classweeks + 1)
-    row_cols[0].markdown(
-        f"**{activity['Activity']}**  \n"
-        f"*Effectiveness:* {activity['Effectiveness']}"
-    )
+for chunk_start in range(0, classweeks, WEEKS_PER_ROW):
+    chunk_end = min(chunk_start + WEEKS_PER_ROW, classweeks)
+    week_range = list(range(chunk_start + 1, chunk_end + 1))
 
-    for week in range(classweeks):
-        checked = row_cols[week + 1].checkbox(
-            "",
-            key=f"{activity['Activity']}-W{week+1}"
+    st.markdown(f"#### Weeks {week_range[0]}–{week_range[-1]}")
+
+    header_cols = st.columns(len(week_range) + 1)
+    header_cols[0].write("**Activity**")
+    for i, w in enumerate(week_range):
+        header_cols[i + 1].write(f"**Week {w}**")
+
+    for activity in ACTIVITIES:
+        row_cols = st.columns(len(week_range) + 1)
+        row_cols[0].markdown(
+            f"**{activity['Activity']}**  \n"
+            f"*Effectiveness:* {activity['Effectiveness']}"
         )
 
-        if checked:
-            data.append({
-                "Week": week + 1,
-                "Activity": activity["Activity"],
-                "Effectiveness": activity["Effectiveness"],
-                "CountsAsSubstantive": activity["CountsAsSubstantive"],
-                "Feedback": activity["Feedback"],
-            })
+        for i, week in enumerate(week_range):
+            checked = row_cols[i + 1].checkbox(
+                "",
+                key=f"{activity['Activity']}-W{week}"
+            )
+
+            if checked:
+                data.append({
+                    "Week": week,
+                    "Activity": activity["Activity"],
+                    "Effectiveness": activity["Effectiveness"],
+                    "CountsAsSubstantive": activity["CountsAsSubstantive"],
+                    "Feedback": activity["Feedback"],
+                })
+
+    st.divider()
 
 # -----------------------------
 # Build DataFrame
