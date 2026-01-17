@@ -114,19 +114,26 @@ with container:
         for i, w in enumerate(week_range):
             header_cols[i + 1].write(f"**Week {w}**")
 
+
+
         # ---------- NEW: Topic input per week ----------
-        topic_cols = st.columns(len(week_range))
+        # Header row
+
+
+        # Topic row (aligned with weeks)
+        topic_cols = st.columns(len(week_range) + 1)
+        topic_cols[0].write("**Describe topic(s) for week**")  # first column empty for label
         topics = {}
         for i, week in enumerate(week_range):
             topic_key = f"Week-{week}-topic"
             st.session_state.setdefault(topic_key, "")
-            topics[week] = topic_cols[i].text_input(
-                f"Week {week} Topic",
+            topics[week] = topic_cols[i + 1].text_input(
+                "",
                 key=topic_key,
                 placeholder="Enter topic (e.g., Research Methods)"
             )
-        # -----------------------------------------------
 
+        # Activity rows
         for activity in ACTIVITIES:
             row_cols = st.columns(len(week_range) + 1)
             row_cols[0].markdown(f"**{activity['Activity']}**")
@@ -136,38 +143,43 @@ with container:
                 cb_key = f"{activity['Activity']}-W{week}"
                 note_key = f"{cb_key}-note"
 
-                st.session_state.setdefault(note_key, "")
                 st.session_state.setdefault(cb_key, False)
+                st.session_state.setdefault(note_key, "")
 
                 cb_col, note_col = col.columns([1, 6])
 
+                # Notes input
                 note = note_col.text_input(
-                    "Notes",
+                    "",
                     key=note_key,
-                    placeholder="planned activity",
-                    label_visibility="collapsed",
+                    placeholder="Planned activity",
+                    label_visibility="collapsed"
                 )
 
-                notes_exist = bool(st.session_state[note_key].strip())
-                is_forced_sync = classweeks == 7 and activity["Activity"] == "Opportunity for synchronous meeting"
-
-                if is_forced_sync or notes_exist:
+                # If notes exist, force the checkbox on
+                if st.session_state[note_key].strip():
                     st.session_state[cb_key] = True
 
-                checked = notes_exist or is_forced_sync
+                # Determine if checkbox should be checked
+                
+                is_forced_sync = classweeks == 7 and activity["Activity"] == "Opportunity for synchronous meeting"
+                if is_forced_sync:
+                    st.session_state[cb_key] = True
 
+                # Checkbox
                 cb_col.checkbox(
-                    f"{activity['Activity']} – Week {week}",
+                    "",
                     key=cb_key,
+                    value=st.session_state[cb_key],
                     label_visibility="collapsed",
-                    value=checked,
-                    disabled=not notes_exist and not is_forced_sync
-                )
+                    disabled=not st.session_state[note_key].strip() and not is_forced_sync
+        )
 
-                if checked:
+                # Append to data if checked
+                if st.session_state[cb_key]:
                     data.append({
                         "Week": week,
-                        "Topic": topics[week],   # <-- add topic here as second column
+                        "Topic": topics[week],
                         "Activity": activity["Activity"],
                         "Notes": note,
                         "CountsAsSubstantive": activity["CountsAsSubstantive"],
@@ -188,12 +200,21 @@ with container:
         st.warning("No activities selected yet.")
         st.stop()
 
+
     summary = []
     for week in range(1, classweeks + 1):
         week_df = df[df["Week"] == week]
         has_substantive = any(week_df["CountsAsSubstantive"])
+        
+        # 1. Re-create the key used in the text_input
+        topic_key = f"Week-{week}-topic"
+        
+        # 2. Fetch the value from session_state (default to empty string if not found)
+        current_topic = st.session_state.get(topic_key, "")
+
         summary.append({
             "Week": week,
+            "Topic": current_topic,  # 3. Add it here
             "Activities Planned": len(week_df),
             "Substantive Interaction Present": has_substantive,
         })
@@ -201,7 +222,10 @@ with container:
     summary_df = pd.DataFrame(summary)
 
     st.markdown("### Weekly RSI Summary")
-    st.dataframe(summary_df, use_container_width=True)
+    st.dataframe(summary_df, use_container_width=True, hide_index=True)
+
+
+    
 
     st.markdown("### Flags")
     for _, row in summary_df.iterrows():
