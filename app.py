@@ -1,6 +1,20 @@
 import streamlit as st
 import pandas as pd
 
+def update_checkbox(cb_key, note_key, is_forced):
+    # The box is checked if there's text OR if it's forced by the 7-week rule
+    if st.session_state[note_key].strip() or is_forced:
+        st.session_state[cb_key] = True
+    else:
+        st.session_state[cb_key] = False
+
+def clear_all_data():
+    # Clear all keys in session state
+    for key in st.session_state.keys():
+        del st.session_state[key]
+    # Streamlit will automatically rerun and re-initialize with empty values
+    
+    
 st.set_page_config(page_title="RSI Estimator", layout="wide")
 
 # -----------------------------
@@ -81,13 +95,24 @@ with container:
             key="course_notes"
         )
 
+
+        # ... your existing course_length and course_notes code ...
+
+        st.markdown("---") # Visual separator
+        st.button(
+            "Reset Plan", 
+            on_click=clear_all_data, 
+            type="primary", 
+            help="This will delete all notes and reset all checkboxes."
+        )
+
+
     # -----------------------------
     # Activity Definitions & Planning Grid
     # -----------------------------
     ACTIVITIES = [
         {"Activity": "Actively facilitated discussion board", "CountsAsSubstantive": True},
         {"Activity": "Feedback on revise/resubmit or scaffolded assignment", "CountsAsSubstantive": True},       
-
         {"Activity": "Opportunity for synchronous meeting", "CountsAsSubstantive": True},
         {"Activity": "Substantive announcements based on student work or events", "CountsAsSubstantive": True},
         {"Activity": "Substantive personalized grading comments", "CountsAsSubstantive": True},
@@ -95,10 +120,11 @@ with container:
         {"Activity": "Detailed grading rubrics with no personalized comment", "CountsAsSubstantive": False},
         {"Activity": "Numeric grades posted with no details", "CountsAsSubstantive": False},
         {"Activity": "Discussion boards with only student participation, no instructor participation", "CountsAsSubstantive": False},
+        {"Activity": "Wild card: describe your activities", "CountsAsSubstantive": False},
     ]
 
     st.markdown("### Weekly Interaction Planning Grid")
-    st.caption("Typing notes will automatically select the activity for that week.")
+    st.caption('Typing notes will automatically select the activity for that week. The "wild card" box allows you to provide additional detail on planned activities.')
 
     data = []
     WEEKS_PER_ROW = 4
@@ -133,60 +159,68 @@ with container:
                 placeholder="Enter topic (e.g., Research Methods)"
             )
 
+
+
+
+
         # Activity rows
+
+        
         for activity in ACTIVITIES:
             row_cols = st.columns(len(week_range) + 1)
             row_cols[0].markdown(f"**{activity['Activity']}**")
 
             for i, week in enumerate(week_range):
                 col = row_cols[i + 1]
-                cb_key = f"{activity['Activity']}-W{week}"
-                note_key = f"{cb_key}-note"
+                
+                cb_key = f"cb_{activity['Activity']}_{week}"
+                note_key = f"note_{activity['Activity']}_{week}"
+                
+                # Determine if this specific cell is a "Forced Sync" cell
+                is_forced_sync = (classweeks == 7 and 
+                                  activity["Activity"] == "Opportunity for synchronous meeting")
 
-                st.session_state.setdefault(cb_key, False)
-                st.session_state.setdefault(note_key, "")
+                # Initialize session state based on forced status or existing text
+                if cb_key not in st.session_state:
+                    st.session_state[cb_key] = is_forced_sync
+                if note_key not in st.session_state:
+                    st.session_state[note_key] = ""
 
                 cb_col, note_col = col.columns([1, 6])
 
-                # Notes input
-                note = note_col.text_input(
+                # 1. THE NOTE INPUT
+                # It triggers the callback to update the checkbox state
+                note_col.text_input(
                     "",
                     key=note_key,
                     placeholder="Planned activity",
-                    label_visibility="collapsed"
+                    label_visibility="collapsed",
+                    on_change=update_checkbox,
+                    args=(cb_key, note_key, is_forced_sync)
                 )
 
-                # If notes exist, force the checkbox on
-                if st.session_state[note_key].strip():
-                    st.session_state[cb_key] = True
-
-                # Determine if checkbox should be checked
+                # 2. THE CHECKBOX (Indicator Only)
+                # We use st.session_state[cb_key] to ensure it reflects the callback logic
+                st.session_state[cb_key] = bool(st.session_state[note_key].strip()) or is_forced_sync
                 
-                is_forced_sync = classweeks == 7 and activity["Activity"] == "Opportunity for synchronous meeting"
-                if is_forced_sync:
-                    st.session_state[cb_key] = True
-
-                # Checkbox
                 cb_col.checkbox(
                     "",
                     key=cb_key,
                     value=st.session_state[cb_key],
                     label_visibility="collapsed",
-                    disabled=not st.session_state[note_key].strip() and not is_forced_sync
-        )
+                    disabled=True # This prevents the user from clicking it
+                )
 
-                # Append to data if checked
+                # 3. APPEND TO DATA
                 if st.session_state[cb_key]:
                     data.append({
                         "Week": week,
                         "Topic": topics[week],
                         "Activity": activity["Activity"],
-                        "Notes": note,
+                        "Notes": st.session_state[note_key],
                         "CountsAsSubstantive": activity["CountsAsSubstantive"],
                     })
-
-
-
+ 
 
 
     st.divider()
