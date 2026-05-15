@@ -291,3 +291,60 @@ with container:
     )
 
     
+
+# Additional small outputs
+st.markdown("---")
+
+st.markdown("""
+<div style="
+    display: flex; 
+    gap: 20px; 
+    border: 1px solid #cfcfcf; 
+    padding: 20px; 
+    border-radius: 10px; 
+    background-color: #f9f9f9;
+    align-items: start;
+    margin-bottom: 20px
+">
+    <div style="flex: 3; text-align: left; font-size: 14px; line-height: 1.6;">
+     Additional definitions/clarifications/calculations:
+     <ul>
+     <li>Formative assessments are assumed to be non-proctored; open book, open notes. </li>
+     <li>Summative assessments are assumed to be proctored; closed book, closed notes. </li>  
+     <li>Discussion posts seem inflated compared to typical student work? Difficult to assess due to lack of proctoring tools.</li> 
+     </ul>
+    </div>    
+    <div style="flex: 3; text-align: left; font-size: 14px; line-height: 1.6;">
+    Updates needed: 
+    <ul>
+     <li>Adding additional study time to account for students needing to find high quality sources / library activities</li> 
+     <li>Considering what other types of assignments to include</li> 
+     <li>Balancing clarity/simplicity with customizability?</li> 
+     <li>Not an RSI calculator , but should it be?</li> 
+     </ul>    
+    </div>
+    <div style="flex: 3; text-align: left; font-size: 14px; line-height: 1.6;">
+     TCC board policy references a 50-minute classroom hour but it also not been updated since the key Distance Education and Innovation regulations, resulting in language that can be difficult to interpret regarding expectations of "direct instruction" as it relates to distance education. 
+    </div>
+</div>
+<div style="
+    width: 100%;
+    border: 1px solid #cfcfcf;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #e8f0fe;
+    margin-bottom: 20px;
+">
+In the present calculation, study/output calculations for writing assignments calculate 1:2 study/output time for reflective writing; 1:1 study/output for argumentative writing; and 2:1 study/output for research-style papers. However, estimates for reading time and writing time are remarkably difficult. Even the use of time itself is a challenge: a student may spend two hours watching an assigned video but fail to do any of the cognitive work of <em>studying</em>. Much of the academic research uses students at prestigious universities who tend to have different study habits than do community college students. Self-reported time use cannot capture how focused that time was. Additionally, students have vastly different skill sets - the amount of time needed to locate quality sources in library resources will be significantly longer for those who have never had to use academic sources before.  <br><br>
+And yet, in spite of these difficulties, class design demands some meaningful metrics to promote consistency between classes and compliance with federal standards. That's why this is meant as an informative tool, not a strict formula. In considering balance, we also need to consider how the inputs and outputs relate. Assigning six hours of videos is meaningless if students are not assessed on learning the material. The regulator here is <em>rigor</em> - expecting college-level work from students. If students are not being held to appropriate standards, the time estimates on writing assignments are skewed. Research-based writing assignments turn into reflective assignments when the sources aren't checked; exams lose the need for study time when proctoring standards aren't upheld. This time estimator cannot capture all of these variables; it's just one piece in planning a well-designed course.<br><br> 
+
+Course Workload Estimator - <a href="http://linktr.ee/mbkenfield" target="_blank">revised by Mel Kenfield</a> for TCC-Connect<br> using conversational prompting with ChatGPT and Claude to supplement existing rudimentary knowledge. 
+Based on <a href="https://cat.wfu.edu/resources/workload2/" target="_blank">Workload Estimator 2.0</a> with research by <a href="https://cat.wfu.edu/about/our-team/" target="_blank">Betsy Barre</a>, <a href="https://orcid.org/0000-0002-7241-2288" target="_blank">Allen Brown</a>, and <a href="https://www.justinesarey.com/" target="_blank">Justin Esarey</a>. Additional <a href="https://cat.wfu.edu/resources/workload/estimationdetails/" target="_blank">estimation details from Wake Forest University</a>. 
+
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png" alt="CC BY-NC-SA 4.0" style="width: 88px;">
+<br>
+<span style="font-size: 12px;">Licensed under CC BY-NC-SA 4.0.</span>
+</div>
+""", unsafe_allow_html=True)
+
+
